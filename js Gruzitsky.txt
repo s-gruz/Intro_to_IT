@@ -1,0 +1,277 @@
+
+var questArray = []; 
+//создаём дефолтный массив с объектами. 
+//Каждый объект - это вопросы, варианты и правильные ответы из условия. 
+//В этот массив будем дописывать вопросы и ответы, вводимые пользователем
+
+questArray[0] = {
+  question: 'Что из перечисленного не является языком программирования?',
+  answer: ['HTML', 'Java', 'Python', 'DevOps'],
+  correctAnswers: [1, 4]
+};
+
+questArray[1] = {
+  question: 'Какие из перечисленных видов тестирования могут быть автоматизированы?',
+  answer: ['UI тестирование', 'Юзабилити тестирование', 'Тестирование совместимости', 'Unit тестирование'],
+  correctAnswers: [1, 3, 4]
+};
+
+questArray[2] = {
+  question: 'Выберите вариант, который соответствует следующему предложению: "Известно, что грымзик обязательно или полосат, или рогат, или и то и другое вместе".',
+  answer: ['Грымзик не может быть безрогим', 'Грымзик не может быть однотонным и безрогим одновременно', 'Грымзик не может быть полосатым и безрогим одновременно', 'Грымзик не может быть однотонным и рогатым одновременно'],
+  correctAnswers: [2]
+};
+
+questArray[3] = {
+  question: 'Выберите типы алгоритмов, которых не существует.',
+  answer: ['Алгоритм с ветвлением', 'Циклический безусловный', 'Циклический с параметром', 'Алгоритм с углублением'],
+  correctAnswers: [2, 4]
+};
+
+questArray[4] = {
+  question: 'Какая (какие) из следующих конструкций используется (используются) для ветвления?',
+  answer: ['switch case', 'if else', 'do while', 'for'],
+  correctAnswers: [1, 2]
+};
+
+//Функция печати вопросов:
+function printQuestions (k) {
+    var br = document.createElement("br");
+    var number = createLabel(`${k+1}. `); 
+    var label = createLabel(questArray[k].question);
+    document.body.append(number, label, br);
+    createBr(); 
+}
+
+//Функция печати текста label:
+function createLabel(questName) {
+  var label = document.createElement("label");
+  label.textContent = questName;
+  return label;
+}
+
+//Функция создания чекбоксов и раздачи им значений:
+function createCheckbox (k, l) {
+  var checkbox = document.createElement("input");
+  checkbox.type = "checkbox";
+  checkbox.id = (`q:${k+1}, a:${l+1}`);
+  //Каждому чекбоксу присваиваем уникальный id 
+  //в виде массива (№вопроса, №ответа)
+  document.body.append(checkbox);//печатаем чекбокс
+          
+    if (questArray[k].correctAnswers.includes(l+1)) {
+    //проверяем соответствие правильным ответам 
+    //l+1, потому что номера ответов в id начинаются с 1
+      checkbox.value = true;
+    } else {
+       checkbox.value = false;
+          }
+}
+
+//Функция печати ответов:
+function printAnswers (k, l) {
+  var subLabel = createLabel(questArray[k].answer[l]);
+      //Печатаем ответы
+      document.body.append(subLabel);
+      createBr();  
+}
+
+//Функция переноса текста на новую строку:
+function createBr() {
+   var br = document.createElement("br");
+   document.body.append(br);
+} 
+
+//Функция создания кнопки "Отправить" и обработки нажатия:
+function createButton() {
+  var btn = document.createElement('button');
+  var textInBtn = document.createTextNode('Отправить');
+  btn.appendChild(textInBtn);
+  document.body.appendChild(btn);
+  btn.onclick = checkAnswer;
+}
+
+//Функция, запускаемая по кнопке "Начать тест". 
+function startTest() {  
+  //Сначала задизейблим обе кнопки:
+  document.getElementById("button1").disabled = true; 
+  document.getElementById("button2").disabled = true; 
+ 
+  //через цикл печатаем № вопроса, варианты ответов и перенос на новую строку
+  //по i - печать вопросов
+  //по j - печать ответов и чекбоксов
+  for (var i = 0; i < questArray.length; i++) {
+    
+    printQuestions(i);
+      
+      for (var j = 0; j < 4; j++) {
+          
+        createCheckbox(i,j);
+        printAnswers (i,j);    
+      
+      }
+    createBr();//пустая строка между вопросами
+    }
+createButton(); //вызываем функцию создания кнопки "Отправить"
+}
+
+//Функция, определяющая чекнутость хотя бы одного ответа в вопросе:
+function ifEmptyCheckboxes () {
+  for (var i = 0; i < questArray.length; i++) {
+    var uncheckedCount = 0;//накапливаем количество пустых чекбоксов 
+  //в каждом из вопросов. Накопим 4 - выдадим alert
+    for (var j = 0; j < 4; j++) {
+    var checkbox = document.getElementById(`q:${i+1}, a:${j+1}`);
+       if (checkbox.checked !== true) {
+          uncheckedCount++;
+       }
+          
+       if (uncheckedCount == 4) { 
+            alert('Все вопросы должны иметь хотя бы один выбранный вариант ответа. Проверьте правильность заполнения.');//CC4
+            return true;
+       }
+     }
+  }
+}
+
+function correctAnswersArr () {
+  var result = [];
+  //Создаем массив,куда будем передавать
+  //количество правильных ответов по каждому из вопросов
+  //т.е. каждый элемент массива - это количество чекнутых true-чекбоксов,
+  //положение элемента в массиве - это номер вопроса 
+  for (var i = 0; i < questArray.length; i++) {
+    result[i] = 0;//обнуляем счетчик правильных ответов 
+    
+    for (var j = 0; j < 4; j++) {
+         var checkbox = document.getElementById(`q:${i+1}, a:${j+1}`);
+         if (checkbox.checked == true && checkbox.value == "true") {
+         //условие правильности ответа - чекнутость чекбокса и его значение true
+         result[i]++;
+         //увеличиваем количество правильных ответов 
+         //в k-м элементе массива. k - это номер вопроса (от нуля)
+        }
+         if ( (checkbox.checked == true && checkbox.value !== "true") || (checkbox.checked !== true && checkbox.value == "true") ) {
+          result[i] = 0; 
+         }
+    }
+  }
+  return result;
+}
+
+//Функция проверки ответов и печати сообщений о результатах:
+function checkAnswer() {
+  
+   if (ifEmptyCheckboxes ()) {
+       return;
+   }
+
+  var result = correctAnswersArr();//Возвращает массив правильных "чеков"
+  console.log(result);  
+  var correct = [];//массив с номерами правильных ответов
+  var wrong = [];//массив с номерами неправильных ответов
+  
+  //сравниваем количество правильных ответов (длины свойства 
+  //correctAnswers каждого вопроса) c количеством 
+  //true-чекбоксов в каждом ответе (т.е. i-м элемете)
+  //массива result
+  for (var i = 0; i < result.length; i++) {
+    if (result[i] == questArray[i].correctAnswers.length) {
+       correct.push(i);//добавляем номер правильного ответа
+    } else {
+      wrong.push(i);
+      }
+  }
+  
+  if (correct.length == result.length) {
+  //correct.length - количество правильных ответов, 
+  //сравниваем с эталонным количеством в вопросе
+    alert (`Ваш результат ${correct.length} из ${result.length}. Вы молодец!`);//CC5
+  } else {
+    var alertMessage = ''; //сюда будем записывать текст неотвеченных вопросов
+    //для дальнейшей их демонстрации в alert
+    for (var j = 0; j < wrong.length; j++) {
+      var wrongAnsN = wrong[j];
+      var addQuestName = `\n${wrong[j]+1}. ${questArray[wrongAnsN].question} `;
+        alertMessage = alertMessage + addQuestName;
+         
+      } 
+    alert (`Вы неправильно ответили на вопросы: \n${alertMessage} \n\nВаш результат ${correct.length} из ${result.length}`);//CC7
+  }
+
+}
+    
+
+
+
+//Ниже идёт часть кода, связанная с добавлением вопроса
+//функция проверки на пустой ввод в prompt:
+function isWrongInput(input) {
+  return (input == "" || input == null);
+}
+
+//функция проверки ввода правильных ответов через запятую:
+function isKeyWrong (input1) {
+var possibleKeys = ["1", "2", "3", "4"];//референсный массив, с которым будем посимвольно сравнивать результат ввода
+var splittedArray = input1.split(',');// дробим ввод по запятым. Если результаты дробления не попадают в реф.массив -  то ввод неверный. Иные знаки, кроме запятой, тоже отбракуются. 
+        for (var k = 0; k < splittedArray.length; k++) {
+         for (var l = 0; l < splittedArray.length; l++) {
+        
+          if (!possibleKeys.includes(splittedArray[k]) || (splittedArray[k] === splittedArray[l] && (k !== l))) {
+           return true;//проверяем на принадлежность к реф.массиву и на повторяемость. k!==l для исключения сравнения элемента с самим собой
+          } 
+        }
+      }
+  return false;
+ }
+
+//Функция, которая срабатывает по кнопке "Добавить вопрос":
+function addQuestion() {
+  //Создаем объект, свойства которого: текст пользовательского
+  //вопроса, варианты ответов, массив с правильными ответами. 
+  //Этот объект станет элементом общего массива вопросов через push.
+  var userQuest = {
+  question: [],
+  answer: [],
+  correctAnswers: []
+};
+  var question1 = prompt ('Введите текст вопроса');
+          if (isWrongInput(question1)) {
+             alert ('Вы не ввели текст вопроса. Попробуйте добавить вопрос заново');//CC1
+              return;
+          } 
+   
+  for (var i = 0; i < 4; i++) {
+    var answerVariant = prompt (`Введите текст ${(i+1)} варианта ответа`);
+  
+    if (isWrongInput(answerVariant)) {
+    alert (`Вы не ввели текст ${(i+1)} варианта ответа. Попробуйте добавить вопрос заново`);//CC2
+      return;
+     } else {
+    //есть ввод корректный, то дописываем в новый объект варианты ответов 
+        userQuest.answer.push(answerVariant);
+       }
+     }
+            
+    var rightAnswer = prompt ('Введите номера правильных ответов через запятую. Нумерация начинается с 1.');
+  
+   if (isWrongInput(rightAnswer)) {
+    alert (`Вы не ввели правильные варинты ответов. Попробуйте добавить вопрос заново`);//СС3
+   return;
+   }
+   
+  if (isKeyWrong(rightAnswer)) {
+     alert ('Поле может содержать только уникальные цифры 1, 2, 3, 4, разделенные запятой. Попробуйте добавить вопрос заново.');//CC6
+   return;
+   }
+  //если ввод правильных ответов корректный, то дописываем их в новый объект. 
+  //Перед этим строковый ввод из prompt разобьём на массив по запятой и 
+  //преобразуем строковый массив в числовой:
+  var split = rightAnswer.split(',').map(Number);
+  userQuest.correctAnswers = split;
+  userQuest.question = question1;//валидный вопрос записываем в объект
+  questArray.push(userQuest);//объект добавляем в массив вопросов
+  console.log(userQuest);
+ }
+
+
